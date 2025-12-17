@@ -8,24 +8,62 @@
 </head>
 <body>
 
-    <div class="container">
-        <h1>Zip Liste</h1>
-        <p class="subtitle">
-            Transforme une liste de textes en QR codes compressés dans un fichier ZIP.
-        </p>
+<div class="container">
+    <h1>Zip Liste</h1>
+    <p class="subtitle">
+        Transforme une liste de textes en QR codes compressés dans un fichier ZIP.
+    </p>
 
-        <textarea
-            placeholder="Colle ici ta liste (1 ligne = 1 QR code)">
-        </textarea>
+    <textarea placeholder="1 ligne = 1 QR code"></textarea>
+    <button>Générer le ZIP</button>
+    <p class="hint">Exemple : 60 lignes → 60 QR codes</p>
+</div>
 
-        <button>
-            Générer le ZIP
-        </button>
+<script>
+const button = document.querySelector("button");
+const textarea = document.querySelector("textarea");
 
-        <p class="hint">
-            Exemple : 60 lignes → 60 QR codes
-        </p>
-    </div>
+button.addEventListener("click", async () => {
+    const lines = textarea.value
+        .split("\n")
+        .map(l => l.trim())
+        .filter(l => l !== "");
+
+    if (lines.length === 0) {
+        alert("La liste est vide");
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Génération en cours...";
+
+    try {
+        const response = await fetch("https://onlinetools-production.up.railway.app/generate-zip", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lines })
+        });
+
+        if (!response.ok) throw new Error();
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "qr_codes.zip";
+        a.click();
+
+        URL.revokeObjectURL(url);
+
+    } catch {
+        alert("Erreur serveur");
+    } finally {
+        button.disabled = false;
+        button.textContent = "Générer le ZIP";
+    }
+});
+</script>
 
 </body>
 </html>
