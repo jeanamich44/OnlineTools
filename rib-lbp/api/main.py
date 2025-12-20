@@ -5,12 +5,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
 
 # =========================
 # INIT API
 # =========================
 
-app = FastAPI()
+app = FastAPI(title="RIB LBP Generator")
 
 app.add_middleware(
     CORSMiddleware,
@@ -20,26 +21,20 @@ app.add_middleware(
 )
 
 # =========================
-# POLICE
+# PATHS (SAFE)
 # =========================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+PDF_TEMPLATE = os.path.join(BASE_DIR, ".BASE.pdf")
 FONT_PATH = os.path.join(BASE_DIR, "arialbd.ttf")
 
-FONT_PATH = "arialbd.ttf"
-if not os.path.exists(FONT_PATH):
-    raise RuntimeError("Police manquante")
+FONT_NAME = "ArialBold"
+FONT_SIZE = 9
+COLOR = (0, 0, 0)
 
 # =========================
-# PDF ORIGINAL (BASE)
-# =========================
-
-PDF_TEMPLATE = ".BASE.pdf"
-if not os.path.exists(PDF_TEMPLATE):
-    raise RuntimeError("PDF template manquant")
-
-# =========================
-# VALEURS PAR DÉFAUT (INCHANGÉES)
+# DEFAULT VALUES
 # =========================
 
 DEFAULTS = {
@@ -47,33 +42,49 @@ DEFAULTS = {
     "guichet": "01007",
     "compte": "1852185T038",
     "cle": "52",
-    "iban": "FR67 2004 1010 0718 5218 5T03 852",
-    "bic": "P S S T F R P P L Y O",
-    "nom prenom": "GOULIET ANTOINE",
-    "adresse": "14 rue de provence",
-    "cp ville": "75009 PARIS",
+    "iban": "FR6720041010071852185T03852",
+    "bic": "PSSTFRPPLYO",
+    "nom_prenom": "GOULIET ANTOINE",
+    "adresse": "14 RUE DE PROVENCE",
+    "cp_ville": "75009 PARIS",
     "domiciliation": "LA BANQUE POSTALE LYON CENTRE FINANCIER",
 }
-
-FONT_SIZE = 9
-COLOR = (0, 0, 0)
 
 # =========================
 # SCHEMA API
 # =========================
 
 class PDFRequest(BaseModel):
-    sexe: str | None = "m"
-    banque: str | None = None
-    guichet: str | None = None
-    compte: str | None = None
-    cle: str | None = None
-    iban: str | None = None
-    bic: str | None = None
-    nom_prenom: str | None = None
-    adresse: str | None = None
-    cp_ville: str | None = None
-    domiciliation: str | None = None
+    sexe: Optional[str] = "m"
+    banque: Optional[str] = None
+    guichet: Optional[str] = None
+    compte: Optional[str] = None
+    cle: Optional[str] = None
+    iban: Optional[str] = None
+    bic: Optional[str] = None
+    nom_prenom: Optional[str] = None
+    adresse: Optional[str] = None
+    cp_ville: Optional[str] = None
+    domiciliation: Optional[str] = None
+
+
+# =========================
+# HELPERS
+# =========================
+
+def require_file(path: str, label: str):
+    if not os.path.exists(path):
+        raise HTTPException(
+            status_code=500,
+            detail=f"{label} manquant sur le serveur"
+        )
+
+def format_iban(iban: str) -> str:
+    clean = iban.replace(" ", "").upper()
+    return " ".join(clean[i:i+4] for i in range(0, len(clean), 4))
+
+def format_bic(bic: str) -> str:
+    return " ".join(list(bic.replace(" ", "").upper()))
 
 # =========================
 # API
@@ -82,56 +93,53 @@ class PDFRequest(BaseModel):
 @app.post("/generate-pdf")
 def generate_pdf(data: PDFRequest):
 
-    titre = "MR" if data.sexe.lower() == "m" else "MME"
+    # === CHECK FILES (ICI, PAS AU BOOT) ===
+    require_file(PDF_TEMPLATE, "PDF de base")
+    require_file(FONT_PATH, "Police")
 
-    # === LOGIQUE IDENTIQUE : valeur reçue OU défaut ===
+    titre = "MR" if (data.sexe or "m").lower() == "m" else "MME"
+
     values = {
         "banque": (data.banque or DEFAULTS["banque"]).upper(),
         "guichet": (data.guichet or DEFAULTS["guichet"]).upper(),
         "compte": (data.compte or DEFAULTS["compte"]).upper(),
         "cle": (data.cle or DEFAULTS["cle"]).upper(),
-        "iban": " ".join(
-            (data.iban or DEFAULTS["iban"]).replace(" ", "").upper()[i:i+4]
-            for i in range(0, len((data.iban or DEFAULTS["iban"]).replace(" ", "")), 4)
-        ),
-        "bic": " ".join(list((data.bic or DEFAULTS["bic"]).replace(" ", "").upper())),
-        "nom prenom": f"{titre} {(data.nom_prenom or DEFAULTS['nom prenom']).upper()}",
+        "iban": format_iban(data.iban or DEFAULTS["iban"]),
+        "bic": format_bic(data.bic or DEFAULTS["bic"]),
+        "nom prenom": f"{titre} {(data.nom_prenom or DEFAULTS['nom_prenom']).upper()}",
         "adresse": (data.adresse or DEFAULTS["adresse"]).upper(),
-        "cp ville": (data.cp_ville or DEFAULTS["cp ville"]).upper(),
+        "cp ville": (data.cp_ville or DEFAULTS["cp_ville"]).upper(),
         "domiciliation": (data.domiciliation or DEFAULTS["domiciliation"]).upper(),
     }
 
-    # === NOUVEAU PDF UNIQUE ===
-    uid = str(uuid.uuid4())
-    output_path = f"/tmp/{uid}.pdf"
+    uid = uuid.uuid4().hex
+    output_path = f"/tmp/rib_{uid}.pdf"
 
-    # === OUVERTURE DU PDF ORIGINAL (JAMAIS MODIFIÉ) ===
-    doc = fitz.open(PDF_TEMPLATE)
+    try:
+        doc = fitz.open(PDF_TEMPLATE)
 
-    for page in doc:
-        fontname = "ArialBold"
-        page.insert_font(fontname=fontname, fontfile=FONT_PATH)
+        for page in doc:
+            page.insert_font(fontname=FONT_NAME, fontfile=FONT_PATH)
 
-        for key, new_text in values.items():
-            results = page.search_for(f"*{key}")
-            if not results:
-                continue
+            for key, text in values.items():
+                for rect in page.search_for(f"*{key}"):
+                    page.draw_rect(rect, fill=(1, 1, 1), width=0)
+                    page.insert_text(
+                        (rect.x0, rect.y1 - 2),
+                        text,
+                        fontsize=FONT_SIZE,
+                        fontname=FONT_NAME,
+                        color=COLOR,
+                    )
 
-            for rect in results:
-                page.draw_rect(rect, fill=(1, 1, 1), width=0)
-                page.insert_text(
-                    (rect.x0, rect.y1 - 2),
-                    new_text,
-                    fontsize=FONT_SIZE,
-                    fontname=fontname,
-                    color=COLOR,
-                )
+        doc.save(output_path)
+        doc.close()
 
-    doc.save(output_path)
-    doc.close()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     return FileResponse(
         output_path,
         media_type="application/pdf",
-        filename="pdf_modifie.pdf"
+        filename="rib.pdf"
     )
