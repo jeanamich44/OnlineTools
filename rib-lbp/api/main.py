@@ -23,6 +23,9 @@ app.add_middleware(
 # POLICE
 # =========================
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FONT_PATH = os.path.join(BASE_DIR, "arialbd.ttf")
+
 FONT_PATH = "arialbd.ttf"
 if not os.path.exists(FONT_PATH):
     raise RuntimeError("Police manquante")
