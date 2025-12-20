@@ -24,7 +24,7 @@ app.add_middleware(
 # =========================
 
 PDF_TEMPLATE = ".BASE.pdf"
-FONT_FILE = "arialbd.ttf"
+FONT_FILE = "arialbd.TTF"
 FONT_NAME = "ArialBold"
 FONT_SIZE = 9
 COLOR = (0, 0, 0)
