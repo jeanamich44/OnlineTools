@@ -22,9 +22,8 @@ app.add_middleware(
 # =========================
 # CONSTANTES
 # =========================
-
-PDF_TEMPLATE = ".BASE.pdf"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PDF_TEMPLATE = os.path.join(BASE_DIR, "base", "LBP.pdf")
 FONT_FILE = os.path.join(BASE_DIR, "font", "arialbd.ttf")
 FONT_NAME = "ArialBold"
 FONT_SIZE = 9
