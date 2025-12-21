@@ -1,4 +1,4 @@
-import fitz
+import fitz, os
 import uuid
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
@@ -24,7 +24,8 @@ app.add_middleware(
 # =========================
 
 PDF_TEMPLATE = ".BASE.pdf"
-FONT_FILE = "arialbd.ttf"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FONT_FILE = os.path.join(BASE_DIR, "font", "arialbd.ttf")
 FONT_NAME = "ArialBold"
 FONT_SIZE = 9
 COLOR = (0, 0, 0)
