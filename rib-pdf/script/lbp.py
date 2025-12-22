@@ -1,6 +1,5 @@
 import fitz
 import os
-import uuid
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,28 +23,26 @@ DEFAULTS = {
     "domiciliation": "LA BANQUE POSTALE LYON CENTRE FINANCIER",
 }
 
-def generate_lbp_pdf(data: dict) -> str:
-    titre = "MR" if data.get("sexe", "m").lower() == "m" else "MME"
+def generate_lbp_pdf(data, output_path):
+    titre = "MR" if (data.sexe or "m").lower() == "m" else "MME"
 
     values = {
-        "banque": (data.get("banque") or DEFAULTS["banque"]).upper(),
-        "guichet": (data.get("guichet") or DEFAULTS["guichet"]).upper(),
-        "compte": (data.get("compte") or DEFAULTS["compte"]).upper(),
-        "cle": (data.get("cle") or DEFAULTS["cle"]).upper(),
+        "banque": (data.banque or DEFAULTS["banque"]).upper(),
+        "guichet": (data.guichet or DEFAULTS["guichet"]).upper(),
+        "compte": (data.compte or DEFAULTS["compte"]).upper(),
+        "cle": (data.cle or DEFAULTS["cle"]).upper(),
         "iban": " ".join(
-            (data.get("iban") or DEFAULTS["iban"])
+            (data.iban or DEFAULTS["iban"])
             .replace(" ", "")
             .upper()[i:i+4]
-            for i in range(0, len((data.get("iban") or DEFAULTS["iban"]).replace(" ", "")), 4)
+            for i in range(0, len((data.iban or DEFAULTS["iban"]).replace(" ", "")), 4)
         ),
-        "bic": " ".join((data.get("bic") or DEFAULTS["bic"]).replace(" ", "").upper()),
-        "nom prenom": f"{titre} {(data.get('nom_prenom') or DEFAULTS['nom_prenom']).upper()}",
-        "adresse": (data.get("adresse") or DEFAULTS["adresse"]).upper(),
-        "cp ville": (data.get("cp_ville") or DEFAULTS["cp_ville"]).upper(),
-        "domiciliation": (data.get("domiciliation") or DEFAULTS["domiciliation"]).upper(),
+        "bic": " ".join((data.bic or DEFAULTS["bic"]).replace(" ", "").upper()),
+        "nom prenom": f"{titre} {(data.nom_prenom or DEFAULTS['nom_prenom']).upper()}",
+        "adresse": (data.adresse or DEFAULTS["adresse"]).upper(),
+        "cp ville": (data.cp_ville or DEFAULTS["cp_ville"]).upper(),
+        "domiciliation": (data.domiciliation or DEFAULTS["domiciliation"]).upper(),
     }
-
-    output_path = f"/tmp/{uuid.uuid4()}.pdf"
 
     doc = fitz.open(PDF_TEMPLATE)
 
@@ -65,5 +62,3 @@ def generate_lbp_pdf(data: dict) -> str:
 
     doc.save(output_path)
     doc.close()
-
-    return output_path
