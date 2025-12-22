@@ -1,3 +1,6 @@
+/* =========================
+   RESET GLOBAL
+========================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -14,15 +17,21 @@ body {
     color: #e5e7eb;
 }
 
+/* =========================
+   CONTAINER (layout inchangé)
+========================= */
 .container {
     width: 100%;
     max-width: 480px;
-    background: #161a22;
+    background: #0f1115;
+    border: 1px solid #2a2f3a;
     border-radius: 14px;
     padding: 24px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
 }
 
+/* =========================
+   TITRES
+========================= */
 h1 {
     text-align: center;
     margin-bottom: 8px;
@@ -37,6 +46,9 @@ h1 {
     margin-bottom: 20px;
 }
 
+/* =========================
+   TOOLS (layout inchangé)
+========================= */
 .tools {
     display: flex;
     gap: 16px;
@@ -63,10 +75,13 @@ h1 {
     color: #9ca3af;
 }
 
+/* =========================
+   INPUTS / TEXTAREA
+========================= */
 textarea,
 input {
     width: 100%;
-    background: #0f1115;
+    background: #161a22;
     border: 1px solid #2a2f3a;
     border-radius: 10px;
     padding: 12px;
@@ -83,9 +98,12 @@ textarea {
 textarea:focus,
 input:focus {
     outline: none;
-    border-color: #6366f1;
+    border-color: #3b82f6;
 }
 
+/* =========================
+   COUNTER
+========================= */
 .counter {
     margin-top: 4px;
     font-size: 0.8rem;
@@ -93,17 +111,24 @@ input:focus {
     text-align: right;
 }
 
+/* =========================
+   BOUTON (logique intacte)
+========================= */
 button {
     margin-top: 12px;
     width: 100%;
     padding: 12px;
     border: none;
     border-radius: 10px;
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    background: #2563eb;
     color: white;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
 }
 
 button:disabled {
@@ -111,6 +136,9 @@ button:disabled {
     cursor: not-allowed;
 }
 
+/* =========================
+   MESSAGE
+========================= */
 #message {
     margin-top: 10px;
     font-size: 0.85rem;
@@ -127,6 +155,9 @@ button:disabled {
     color: #22c55e;
 }
 
+/* =========================
+   BACK LINK
+========================= */
 .back {
     display: block;
     margin-top: 16px;
@@ -135,86 +166,96 @@ button:disabled {
     text-decoration: none;
 }
 
+.back:hover {
+    color: #e5e7eb;
+}
+
 /* =========================
-   PAGE LBP
+   PAGE LBP (STYLE HOME.CSS)
 ========================= */
-
 .page-lbp {
-  background: radial-gradient(circle at top, #1b1e3c, #0a0c1a);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: "Segoe UI", Arial, sans-serif;
-  color: #fff;
+    background: #0f1115;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #e5e7eb;
 }
 
-/* CARD */
 .page-lbp .card {
-  width: 420px;
-  background: linear-gradient(180deg, #171a34, #0f1226);
-  padding: 28px;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    width: 420px;
+    background: #0f1115;
+    border: 1px solid #2a2f3a;
+    padding: 28px;
+    border-radius: 14px;
 }
 
-/* TITRES */
-.page-lbp h1 {
-  text-align: center;
-  margin-bottom: 6px;
-}
-
-.page-lbp .subtitle {
-  text-align: center;
-  font-size: 14px;
-  color: #aab;
-  margin-bottom: 22px;
-}
-
-/* INPUTS */
 .page-lbp input {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  border-radius: 10px;
-  border: none;
-  background: #0c0f25;
-  color: #fff;
+    background: #161a22;
+    border: 1px solid #2a2f3a;
+    color: #e5e7eb;
 }
 
 .page-lbp input::placeholder {
-  color: #777;
+    color: #6b7280;
 }
 
-/* BOUTON */
-.page-lbp button {
-  width: 100%;
-  padding: 13px;
-  margin-top: 10px;
-  border-radius: 12px;
-  border: none;
-  background: linear-gradient(135deg, #6a6aff, #7c7cff);
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
+/* =========================
+   RIB GENERATOR
+========================= */
+.rib-generator-page {
+    background: #0f1115;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.page-lbp button:hover {
-  opacity: 0.9;
+.rib-generator {
+    width: 100%;
+    max-width: 420px;
+    padding: 32px;
 }
 
-/* MESSAGE */
-#message {
-  text-align: center;
-  margin-top: 10px;
-  font-size: 14px;
+.bank-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
 }
 
-/* RETOUR */
-.page-lbp .back {
-  display: block;
-  margin-top: 16px;
-  text-align: center;
-  color: #aaa;
-  text-decoration: none;
+.bank-item {
+    display: block;
+    padding: 16px 18px;
+    border-radius: 12px;
+    background: #161a22;
+    border: 1px solid #2a2f3a;
+    text-decoration: none;
+    color: #e5e7eb;
+}
+
+.bank-item:hover {
+    background: #1b2030;
+}
+
+.bank-name {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.bank-desc {
+    font-size: 13px;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+.back-link {
+    display: block;
+    margin-top: 28px;
+    text-align: center;
+    color: #9ca3af;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    color: #e5e7eb;
 }
