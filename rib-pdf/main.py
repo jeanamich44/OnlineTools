@@ -8,7 +8,8 @@ import os
 
 from script.lbp import generate_lbp_pdf
 from script.sg import generate_sg_pdf
-from script.bfb import generate_bfb_pdf   # ⬅️ NOUVEAU
+from script.bfb import generate_bfb_pdf
+from script.revolut import generate_revolut_pdf
 
 # =========================
 # INIT
@@ -29,23 +30,33 @@ app.add_middleware(
 # =========================
 
 class PDFRequest(BaseModel):
-    type_pdf: str  # "lbp" | "sg" | "bfb"
+    type_pdf: str  # "lbp" | "sg" | "bfb" | "revolut"
 
     sexe: Optional[str] = "m"
+
+    # Champs communs
+    nom_prenom: Optional[str] = None
+    adresse: Optional[str] = None
+    cp_ville: Optional[str] = None
+
+    # Champs détaillés (Revolut / BFB)
+    cp: Optional[str] = None
+    ville: Optional[str] = None
+    depart: Optional[str] = None
+
     banque: Optional[str] = None
     guichet: Optional[str] = None
     compte: Optional[str] = None
     cle: Optional[str] = None
     iban: Optional[str] = None
     bic: Optional[str] = None
-    nom_prenom: Optional[str] = None
-    adresse: Optional[str] = None
-    cp_ville: Optional[str] = None
+
     domiciliation: Optional[str] = None
 
     agence: Optional[str] = None
     agence_adresse: Optional[str] = None
     agence_cp_ville: Optional[str] = None
+
 
 # =========================
 # API
@@ -62,8 +73,11 @@ def generate_pdf(data: PDFRequest):
         elif data.type_pdf == "sg":
             generate_sg_pdf(data, output_path)
 
-        elif data.type_pdf == "bfb":   # ⬅️ NOUVEAU
+        elif data.type_pdf == "bfb":
             generate_bfb_pdf(data, output_path)
+
+        elif data.type_pdf == "revolut":
+            generate_revolut_pdf(data, output_path)
 
         else:
             raise HTTPException(status_code=400, detail="type_pdf invalide")
