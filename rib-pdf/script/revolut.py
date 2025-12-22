@@ -8,7 +8,7 @@ import re
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 PDF_TEMPLATE = os.path.join(BASE_DIR, "base", "REVOLUT.pdf")
-FONT_FILE = os.path.join(BASE_DIR, "font", "Roboto-Regular.ttf")
+FONT_FILE = os.path.join(BASE_DIR, "font", "roboto-regular.ttf")
 
 FONT_SIZE = 8.25
 COLOR = (25/255, 28/255, 31/255)

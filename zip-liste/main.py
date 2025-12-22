@@ -1,13 +1,12 @@
+# main.py
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import qrcode
-import zipfile
-import os
-import uuid
-import shutil
 import time
+
+from mrz import generate_mrz, generate_random_data
+from qr_zip_algo import generate_qr_zip
 
 app = FastAPI()
 
@@ -18,22 +17,54 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-MAX_LINES = 4000
 RATE_LIMIT = {}
 MAX_REQUESTS = 5
-WINDOW = 60  # seconds
+WINDOW = 60
+
+class MRZRequest(BaseModel):
+    mode: str = "random"
+    nom: str | None = None
+    prenom: str | None = None
+    dep: str | None = None
+    canton: str | None = None
+    bureau: str | None = None
+    date_delivrance: str | None = None
+    random_code: str | None = None
+    naissance: str | None = None
+    sexe: str | None = None
 
 class QRRequest(BaseModel):
     lines: list[str]
 
-def index_to_code(i: int) -> str:
-    a = (i // 676) % 26
-    b = (i // 26) % 26
-    c = i % 26
-    return f"{chr(65+a)}{chr(65+b)}{chr(65+c)}"
+@app.post("/generate-mrz")
+def generate_mrz_endpoint(req: MRZRequest):
+    if req.mode == "aleatoire":
+        data = generate_random_data()
+        mrz = generate_mrz(data)
+        return {"mrz": [f"{mrz['line1']}\n{mrz['line2']}"]}
+
+    if req.mode == "manuel":
+        data = {
+            "nom": req.nom,
+            "prenom": req.prenom,
+            "dep": req.dep,
+            "canton": req.canton,
+            "bureau": req.bureau,
+            "date_delivrance": req.date_delivrance,
+            "random_code": req.random_code,
+            "naissance": req.naissance,
+            "sexe": req.sexe,
+        }
+        if None in data.values():
+            raise HTTPException(status_code=400, detail="Missing fields")
+
+        mrz = generate_mrz(data)
+        return {"mrz": [f"{mrz['line1']}\n{mrz['line2']}"]}
+
+    raise HTTPException(status_code=400, detail="Invalid mode")
 
 @app.post("/generate-zip")
-def generate_zip(data: QRRequest, request: Request):
+def generate_zip_endpoint(req: QRRequest, request: Request):
     ip = request.client.host
     now = time.time()
 
@@ -41,33 +72,15 @@ def generate_zip(data: QRRequest, request: Request):
     hits = [t for t in hits if now - t < WINDOW]
 
     if len(hits) >= MAX_REQUESTS:
-        raise HTTPException(status_code=429, detail="Trop de requêtes (5/min max)")
+        raise HTTPException(status_code=429, detail="Rate limit")
 
     hits.append(now)
     RATE_LIMIT[ip] = hits
 
-    if not data.lines:
-        raise HTTPException(status_code=400, detail="Liste vide")
-
-    if len(data.lines) > MAX_LINES:
-        raise HTTPException(status_code=400, detail="Limite dépassée (4000 lignes max)")
-
-    uid = str(uuid.uuid4())
-    temp_dir = f"/tmp/{uid}"
-    zip_path = f"/tmp/{uid}.zip"
-
-    os.makedirs(temp_dir)
-
-    for i, text in enumerate(data.lines):
-        code = index_to_code(i)
-        qr = qrcode.make(text)
-        qr.save(f"{temp_dir}/{code}.png")
-
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
-        for file in os.listdir(temp_dir):
-            zipf.write(os.path.join(temp_dir, file), arcname=file)
-
-    shutil.rmtree(temp_dir)
+    try:
+        zip_path = generate_qr_zip(req.lines)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
     return FileResponse(
         zip_path,
