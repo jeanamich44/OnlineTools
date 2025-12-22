@@ -53,8 +53,11 @@ def generate_mrz_endpoint(req: MRZRequest):
             "date_delivrance": req.date_delivrance,
             "random_code": req.random_code,
             "naissance": req.naissance,
-            "sexe": req.sexe,
+            "sexe": req.sexe.upper(),
         }
+        if data["sexe"] not in ("M", "F"):
+            raise HTTPException(400, "Sexe invalide (M/F)")
+
         if None in data.values():
             raise HTTPException(status_code=400, detail="Missing fields")
 
