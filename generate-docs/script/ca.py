@@ -1,6 +1,3 @@
-# =========================
-# script/credit_agricole.py
-# =========================
 import fitz
 import os
 import re
@@ -8,7 +5,7 @@ import re
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 PDF_TEMPLATE = os.path.join(BASE_DIR, "base", "CA.pdf")
-FONT_FILE = os.path.join(BASE_DIR, "font", "OpenSans-SemiBold.ttf")
+FONT_FILE = os.path.join(BASE_DIR, "font", "opensans-semibold.ttf")
 
 FONT_SIZE = 9.6
 COLOR = (0, 0, 0)

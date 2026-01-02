@@ -81,7 +81,7 @@ def generate_pdf(data: PDFRequest):
         elif data.type_pdf == "revolut":
             generate_revolut_pdf(data, output_path)
 
-        elif data.type_pdf == "credit_agricole":
+        elif data.type_pdf == "ca":
             generate_ca_pdf(data, output_path)
 
         else:
