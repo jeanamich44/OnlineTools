@@ -1,3 +1,6 @@
+# =========================
+# script/credit_agricole.py
+# =========================
 import fitz
 import os
 import re
@@ -5,11 +8,10 @@ import re
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 PDF_TEMPLATE = os.path.join(BASE_DIR, "base", "CA.pdf")
-FONT_FILE = os.path.join(BASE_DIR, "font", "opensans-semibold.ttf")
+FONT_FILE = os.path.join(BASE_DIR, "font", "OpenSans-SemiBold.ttf")
 
 FONT_SIZE = 9.6
 COLOR = (0, 0, 0)
-
 RIGHT_LIMIT_X = 538.87
 
 DEFAULTS = {
@@ -21,7 +23,7 @@ DEFAULTS = {
     "guichet": "00500",
     "compte": "30021598310",
     "cle": "07",
-    "bank": "AGENCE TOULOUSE 31",
+    "agence": "AGENCE TOULOUSE 31",
 }
 
 def format_iban(iban: str):
@@ -65,6 +67,10 @@ def insert(page, key, text, anchor_end_x=None):
     return end_x
 
 def generate_ca_pdf(data, output_path):
+    agence_value = data.agence or data.bank or DEFAULTS["agence"]
+    if not agence_value.upper().startswith("AGENCE "):
+        agence_value = "AGENCE " + agence_value
+
     values = {
         "*nomprenom": (data.nom_prenom or DEFAULTS["nom_prenom"]).upper(),
         "*adresse": (data.adresse or DEFAULTS["adresse"]).upper(),
@@ -74,29 +80,20 @@ def generate_ca_pdf(data, output_path):
         "*compte": (data.compte or DEFAULTS["compte"]),
         "*cle": (data.cle or DEFAULTS["cle"]),
         "*iban": format_iban(data.iban or DEFAULTS["iban"]),
-        "*bank": (data.bank or DEFAULTS["bank"]).upper(),
+        "*agence": agence_value.upper(),
     }
-
-    if not values["*bank"].startswith("AGENCE "):
-        values["*bank"] = "AGENCE " + values["*bank"]
 
     doc = fitz.open(PDF_TEMPLATE)
 
     for page in doc:
         anchor_end_x = None
 
-        if "*nomprenom" in values:
-            anchor_end_x = insert(page, "*nomprenom", values["*nomprenom"])
+        anchor_end_x = insert(page, "*nomprenom", values["*nomprenom"])
+        insert(page, "*adresse", values["*adresse"], anchor_end_x)
+        insert(page, "*cpville", values["*cpville"], anchor_end_x)
 
-        if "*adresse" in values:
-            insert(page, "*adresse", values["*adresse"], anchor_end_x)
-
-        if "*cpville" in values:
-            insert(page, "*cpville", values["*cpville"], anchor_end_x)
-
-        for key in ["*banque", "*guichet", "*compte", "*cle", "*iban", "*bank"]:
-            if key in values:
-                insert(page, key, values[key])
+        for key in ["*banque", "*guichet", "*compte", "*cle", "*iban", "*agence"]:
+            insert(page, key, values[key])
 
     doc.save(output_path, garbage=4, deflate=True)
     doc.close()

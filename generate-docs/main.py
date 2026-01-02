@@ -10,6 +10,8 @@ from script.lbp import generate_lbp_pdf
 from script.sg import generate_sg_pdf
 from script.bfb import generate_bfb_pdf
 from script.revolut import generate_revolut_pdf
+from script.credit_agricole import generate_ca_pdf
+
 
 # =========================
 # INIT
@@ -25,12 +27,13 @@ app.add_middleware(
     allow_credentials=True,
 )
 
+
 # =========================
 # SCHEMA
 # =========================
 
 class PDFRequest(BaseModel):
-    type_pdf: str  # "lbp" | "sg" | "bfb" | "revolut"
+    type_pdf: str  # "lbp" | "sg" | "bfb" | "revolut" | "credit_agricole"
 
     sexe: Optional[str] = "m"
 
@@ -39,7 +42,7 @@ class PDFRequest(BaseModel):
     adresse: Optional[str] = None
     cp_ville: Optional[str] = None
 
-    # Champs détaillés (Revolut / BFB)
+    # Champs détaillés
     cp: Optional[str] = None
     ville: Optional[str] = None
     depart: Optional[str] = None
@@ -54,8 +57,7 @@ class PDFRequest(BaseModel):
     domiciliation: Optional[str] = None
 
     agence: Optional[str] = None
-    agence_adresse: Optional[str] = None
-    agence_cp_ville: Optional[str] = None
+    bank: Optional[str] = None
 
 
 # =========================
@@ -78,6 +80,9 @@ def generate_pdf(data: PDFRequest):
 
         elif data.type_pdf == "revolut":
             generate_revolut_pdf(data, output_path)
+
+        elif data.type_pdf == "credit_agricole":
+            generate_ca_pdf(data, output_path)
 
         else:
             raise HTTPException(status_code=400, detail="type_pdf invalide")

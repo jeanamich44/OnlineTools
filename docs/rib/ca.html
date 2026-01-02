@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>RIB – Crédit Agricole</title>
 <link rel="stylesheet" href="../css/style.css">
 </head>
@@ -10,7 +10,7 @@
 
 <div class="container">
   <h1>RIB Crédit Agricole</h1>
-  <p class="subtitle">Génération PDF – Crédit Agricole</p>
+  <p class="subtitle">Génération automatique</p>
 
   <form id="caForm">
     <input name="nom_prenom" placeholder="Nom Prénom">
@@ -23,7 +23,7 @@
     <input name="cle" placeholder="Clé RIB">
 
     <input name="iban" placeholder="IBAN">
-    <input name="bank" placeholder="Agence (ex: TOULOUSE 31)">
+    <input name="agence" placeholder="Agence (ex: TOULOUSE 31)">
 
     <button type="submit">Générer PDF</button>
   </form>
@@ -34,24 +34,23 @@
 </div>
 
 <script>
-const API_URL = "https://generate-docs-production.up.railway.app/generate-pdf";
+const API_URL = "/generate-pdf";
 const form = document.getElementById("caForm");
 const message = document.getElementById("message");
 
 form.onsubmit = async (e) => {
   e.preventDefault();
-
-  message.textContent = "Génération en cours...";
+  message.textContent = "Génération en cours…";
   message.className = "";
 
   const data = Object.fromEntries(new FormData(form));
-  data.type_pdf = "credit_agricole";
+  data.type_pdf = "ca";
 
   try {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
 
     if (!res.ok) {
@@ -69,7 +68,7 @@ form.onsubmit = async (e) => {
     a.click();
     a.remove();
 
-    message.textContent = "PDF généré avec succès";
+    message.textContent = "PDF généré";
     message.className = "success";
 
   } catch (err) {
