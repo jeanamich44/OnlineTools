@@ -10,7 +10,7 @@ from script.lbp import generate_lbp_pdf
 from script.sg import generate_sg_pdf
 from script.bfb import generate_bfb_pdf
 from script.revolut import generate_revolut_pdf
-from script.credit_agricole import generate_ca_pdf
+from script.ca import generate_ca_pdf
 
 
 # =========================
