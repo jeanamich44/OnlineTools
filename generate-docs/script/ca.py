@@ -65,8 +65,6 @@ def insert(page, key, text, anchor_end_x=None):
 
 def generate_ca_pdf(data, output_path):
     agence_value = data.agence or data.bank or DEFAULTS["agence"]
-    if not agence_value.upper().startswith("AGENCE "):
-        agence_value = "AGENCE " + agence_value
 
     values = {
         "*nomprenom": (data.nom_prenom or DEFAULTS["nom_prenom"]).upper(),
