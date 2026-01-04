@@ -39,7 +39,10 @@ FONT_SIZES = {
 }
 
 def generate_sg_pdf(data, output_path):
-    titre = "M. " if data.sexe == "m" else "Mme. "
+    if data.sexe == "m" or data.sexe == "M":
+        titre = "M. "
+    else:
+        titre = "Mme. "
 
     values = {
         "nom prenom": titre + (data.nom_prenom or DEFAULTS["nom_prenom"]).upper(),

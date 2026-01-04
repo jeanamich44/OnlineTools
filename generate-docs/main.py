@@ -12,6 +12,7 @@ from script.bfb import generate_bfb_pdf
 from script.revolut import generate_revolut_pdf
 from script.ca import generate_ca_pdf
 from script.cm import generate_cm_pdf
+from script.cic import generate_cic_pdf
 
 
 # =========================
@@ -90,6 +91,9 @@ def generate_pdf(data: PDFRequest):
 
         elif data.type_pdf == "cm":
             generate_cm_pdf(data, output_path)
+
+        elif data.type_pdf == "cic":
+            generate_cic_pdf(data, output_path)
 
         else:
             raise HTTPException(status_code=400, detail="type_pdf invalide")

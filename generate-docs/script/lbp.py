@@ -25,6 +25,7 @@ DEFAULTS = {
 
 def generate_lbp_pdf(data, output_path):
     titre = "MR" if (data.sexe or "m").lower() == "m" else "MME"
+    
 
     values = {
         "banque": (data.banque or DEFAULTS["banque"]).upper(),
