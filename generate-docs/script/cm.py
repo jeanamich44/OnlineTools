@@ -104,5 +104,11 @@ def generate_cm_pdf(data, output_path):
         for k, v in values.items():
             overwrite(page, k, v)
 
-    doc.save(output_path)
+    doc.save(
+    output_path,
+    garbage=4,
+    deflate=True,
+    clean=True,
+)
+
     doc.close()
