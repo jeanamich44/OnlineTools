@@ -40,16 +40,24 @@ def wipe_and_write(page, rect, text, font, size, color):
     )
 
 def add_watermark(page):
-    h = int(page.rect.height)
-    for y in range(80, h, 140):
-        page.insert_text(
-            (40, y),
-            "PREVIEW - NON PAYÉ",
-            fontsize=28,
-            fontname=FONT_BOLD,
-            color=(0.75, 0.75, 0.75),
-            fill_opacity=0.12,
-        )
+    rect = page.rect
+    text = "PREVIEW – NON PAYÉ"
+
+    # Diagonale
+    angle = 30  
+
+    for x in range(-200, int(rect.width), 300):
+        for y in range(0, int(rect.height), 220):
+            page.insert_text(
+                (x, y),
+                text,
+                fontsize=40,
+                fontname=FONT_BOLD,
+                color=(0.55, 0.55, 0.55),   # plus foncé
+                rotate=angle,              # rotation visible
+                fill_opacity=0.25,         # beaucoup plus visible
+            )
+
 
 def generate_qonto_preview(data, output_path):
     values = {
@@ -62,8 +70,6 @@ def generate_qonto_preview(data, output_path):
         "*adresse": (data.adresse or DEFAULTS["adresse"]).upper(),
         "*cpville": (data.cp_ville or DEFAULTS["cp_ville"]).upper(),
     }
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     doc = fitz.open(PDF_TEMPLATE)
 
