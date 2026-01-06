@@ -13,7 +13,6 @@ FONT_BOLD = "ARIAL_BOLD"
 
 COLOR_MAIN = (29/255, 29/255, 27/255)
 COLOR_SECOND = (99/255, 99/255, 96/255)
-COLOR_WATERMARK = (0.85, 0.15, 0.15)
 
 DEFAULTS = {
     "iban": "FR7630004008001234567890152",
@@ -40,20 +39,7 @@ def wipe_and_write(page, rect, text, font, size, color):
         color=color,
     )
 
-def add_preview_watermark(page):
-    text = "PREVIEW — NON UTILISABLE"
-    page.insert_textbox(
-        page.rect,
-        text,
-        fontsize=80,
-        fontname=FONT_BOLD,
-        color=COLOR_WATERMARK,
-        rotate=45,
-        align=1,
-        overlay=True,
-    )
-
-def generate_qonto_preview_pdf(data, output_path):
+def generate_qonto_pdf(data, output_path):
     values = {
         "*iban": format_iban(data.iban or DEFAULTS["iban"]),
         "*banque": data.banque or DEFAULTS["banque"],
@@ -113,8 +99,6 @@ def generate_qonto_preview_pdf(data, output_path):
                     size,
                     color,
                 )
-
-        add_preview_watermark(page)
 
     doc.save(output_path, garbage=4, deflate=True, clean=True)
     doc.close()

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Panier</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/cart.css">
+</head>
+
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="../index.html" class="logo">OnlineTools</a>
+
+    <nav class="nav">
+      <a href="../index.html">Home</a>
+      <a href="../tools/tools-liste.html">Tools</a>
+      <a href="../contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+  <h1>Panier</h1>
+  <p class="subtitle">Vos documents sélectionnés</p>
+
+  <div id="cartList" class="cart-list"></div>
+
+  <div class="cart-summary">
+    <span id="total"></span>
+    <button id="payBtn">Payer</button>
+  </div>
+
+  <a class="back" href="../tools/qonto.html">Retour</a>
+</div>
+
+<script>
+const cartList = document.getElementById("cartList");
+const totalEl = document.getElementById("total");
+let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+function render() {
+  cartList.innerHTML = "";
+  let total = 0;
+
+  cart.forEach((item, i) => {
+    total += item.price;
+
+    const row = document.createElement("div");
+    row.className = "cart-item";
+
+    row.innerHTML = `
+      <div class="cart-item-left">
+        <strong>${item.name}</strong>
+        <span>${item.price.toFixed(2)} €</span>
+      </div>
+      <button class="remove">✕</button>
+    `;
+
+    row.querySelector(".remove").onclick = () => {
+      cart.splice(i, 1);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      render();
+    };
+
+    cartList.appendChild(row);
+  });
+
+  totalEl.textContent = "Total : " + total.toFixed(2) + " €";
+}
+
+render();
+</script>
+
+</body>
+</html>
