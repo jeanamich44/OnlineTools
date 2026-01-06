@@ -43,20 +43,16 @@ def add_watermark(page):
     rect = page.rect
     text = "PREVIEW – NON PAYÉ"
 
-    # Diagonale
-    angle = 30  
+    for y in range(80, int(rect.height), 160):
+        page.insert_text(
+            (40, y),
+            text,
+            fontsize=42,
+            fontname=FONT_BOLD,
+            color=(0.55, 0.55, 0.55),
+            fill_opacity=0.22,
+        )
 
-    for x in range(-200, int(rect.width), 300):
-        for y in range(0, int(rect.height), 220):
-            page.insert_text(
-                (x, y),
-                text,
-                fontsize=40,
-                fontname=FONT_BOLD,
-                color=(0.55, 0.55, 0.55),   # plus foncé
-                rotate=angle,              # rotation visible
-                fill_opacity=0.25,         # beaucoup plus visible
-            )
 
 
 def generate_qonto_preview(data, output_path):
