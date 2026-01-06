@@ -1,7 +1,6 @@
 import fitz
 import os
 import re
-import io
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -52,16 +51,16 @@ def add_watermark(page):
             fill_opacity=0.12,
         )
 
-def generate_qonto_preview(data, *_):
+def generate_qonto_preview(data, output_path):
     values = {
-        "*iban": format_iban(getattr(data, "iban", None) or DEFAULTS["iban"]),
-        "*banque": getattr(data, "banque", None) or DEFAULTS["banque"],
-        "*guichet": getattr(data, "guichet", None) or DEFAULTS["guichet"],
-        "*compte": getattr(data, "compte", None) or DEFAULTS["compte"],
-        "*cle": getattr(data, "cle", None) or DEFAULTS["cle"],
-        "*nomprenom": (getattr(data, "nom_prenom", None) or DEFAULTS["nom_prenom"]).upper(),
-        "*adresse": (getattr(data, "adresse", None) or DEFAULTS["adresse"]).upper(),
-        "*cpville": (getattr(data, "cp_ville", None) or DEFAULTS["cp_ville"]).upper(),
+        "*iban": format_iban(data.iban or DEFAULTS["iban"]),
+        "*banque": data.banque or DEFAULTS["banque"],
+        "*guichet": data.guichet or DEFAULTS["guichet"],
+        "*compte": data.compte or DEFAULTS["compte"],
+        "*cle": data.cle or DEFAULTS["cle"],
+        "*nomprenom": (data.nom_prenom or DEFAULTS["nom_prenom"]).upper(),
+        "*adresse": (data.adresse or DEFAULTS["adresse"]).upper(),
+        "*cpville": (data.cp_ville or DEFAULTS["cp_ville"]).upper(),
     }
 
     doc = fitz.open(PDF_TEMPLATE)
@@ -73,29 +72,47 @@ def generate_qonto_preview(data, *_):
         name_rects = page.search_for("*nomprenom")
 
         if len(name_rects) >= 1:
-            wipe_and_write(page, name_rects[0], values["*nomprenom"], FONT_BOLD, 7.5, COLOR_SECOND)
+            wipe_and_write(
+                page,
+                name_rects[0],
+                values["*nomprenom"],
+                FONT_BOLD,
+                7.5,
+                COLOR_SECOND,
+            )
 
         if len(name_rects) >= 2:
-            wipe_and_write(page, name_rects[1], values["*nomprenom"], FONT_REG, 9, COLOR_MAIN)
+            wipe_and_write(
+                page,
+                name_rects[1],
+                values["*nomprenom"],
+                FONT_REG,
+                9,
+                COLOR_MAIN,
+            )
 
         MAP = {
-            "*iban":    (FONT_REG, 10.5, COLOR_MAIN, ""),
-            "*banque":  (FONT_REG, 6, COLOR_SECOND, "Banque  "),
-            "*guichet": (FONT_REG, 6, COLOR_SECOND, "Guichet  "),
-            "*compte":  (FONT_REG, 6, COLOR_SECOND, "Compte  "),
-            "*cle":     (FONT_REG, 6, COLOR_SECOND, "Clé  "),
-            "*adresse": (FONT_REG, 9, COLOR_MAIN, ""),
-            "*cpville": (FONT_REG, 9, COLOR_MAIN, ""),
+            "*iban":   (FONT_REG, 10.5, COLOR_MAIN, ""),
+            "*banque": (FONT_REG, 6, COLOR_SECOND, "Banque  "),
+            "*guichet":(FONT_REG, 6, COLOR_SECOND, "Guichet  "),
+            "*compte": (FONT_REG, 6, COLOR_SECOND, "Compte  "),
+            "*cle":    (FONT_REG, 6, COLOR_SECOND, "Clé  "),
+            "*adresse":(FONT_REG, 9, COLOR_MAIN, ""),
+            "*cpville":(FONT_REG, 9, COLOR_MAIN, ""),
         }
 
         for key, (font, size, color, prefix) in MAP.items():
             for r in page.search_for(key):
-                wipe_and_write(page, r, prefix + values[key], font, size, color)
+                wipe_and_write(
+                    page,
+                    r,
+                    prefix + values[key],
+                    font,
+                    size,
+                    color,
+                )
 
         add_watermark(page)
 
-    buf = io.BytesIO()
-    doc.save(buf, garbage=4, deflate=True, clean=True)
+    doc.save(output_path, garbage=4, deflate=True, clean=True)
     doc.close()
-    buf.seek(0)
-    return buf.getvalue()
