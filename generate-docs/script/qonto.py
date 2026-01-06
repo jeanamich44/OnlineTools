@@ -41,8 +41,8 @@ def wipe_and_write(page, rect, text, font, size, color):
     )
 
 def add_watermark(page):
-    rect = page.rect
-    for y in range(80, int(rect.height), 140):
+    h = int(page.rect.height)
+    for y in range(80, h, 140):
         page.insert_text(
             (40, y),
             "PREVIEW – NON PAYÉ",
@@ -52,7 +52,7 @@ def add_watermark(page):
             fill_opacity=0.12,
         )
 
-def generate_qonto_preview(data):
+def generate_qonto_preview(data, *_):
     values = {
         "*iban": format_iban(getattr(data, "iban", None) or DEFAULTS["iban"]),
         "*banque": getattr(data, "banque", None) or DEFAULTS["banque"],
@@ -94,9 +94,8 @@ def generate_qonto_preview(data):
 
         add_watermark(page)
 
-    buffer = io.BytesIO()
-    doc.save(buffer, garbage=4, deflate=True, clean=True)
+    buf = io.BytesIO()
+    doc.save(buf, garbage=4, deflate=True, clean=True)
     doc.close()
-    buffer.seek(0)
-
-    return buffer.getvalue()
+    buf.seek(0)
+    return buf.getvalue()
