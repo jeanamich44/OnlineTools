@@ -40,9 +40,9 @@ def generate_assurance_pdf(data, output_path):
     date_val = datetime.date.today() - datetime.timedelta(days=1)
 
     DATA = {
-        "*nomprenom": format_nomprenom(data.nomprenom or "Antoine LABRIT"),
+        "*nomprenom": format_nomprenom(data.nom_prenom or "Antoine LABRIT"),
         "*adresse": data.adresse or "12 RUE DE PROVENCE",
-        "*cpville": data.cpville or "75009 PARIS",
+        "*cpville": data.cp_ville or "75009 PARIS",
         "*nclient": data.nclient or "TI0002722652",
         "*ncontrat": data.ncontrat or "MOT001227011",
         "*norias": data.norias or "17005124",

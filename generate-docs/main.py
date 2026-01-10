@@ -66,6 +66,11 @@ class PDFRequest(BaseModel):
     agence_cp_ville: Optional[str] = None
     bank: Optional[str] = None
 
+    nclient: Optional[str] = None
+    ncontrat: Optional[str] = None
+    norias: Optional[str] = None
+    plaque: Optional[str] = None
+    typevehicule: Optional[str] = None
 
 # =========================
 # API
